@@ -22,7 +22,7 @@ const Header = () => {
           <Link to="/contact" className="text-white hover:text-yellow-100">
             Contact
           </Link>
-          <Link className="text-white hover:text-yellow-100">Login</Link>
+          <Link to='/login' className="text-white hover:text-yellow-100">Login</Link>
         </nav>
 
         {/* Mobile Menu Button (Hidden on larger screens) */}
