@@ -1,7 +1,10 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import Cookies from "js-cookie";
 
 const Header = () => {
+  const currentUser = useSelector((state) => state.user.currentUser);
   return (
     <div className="bg-yellow-400 py-4">
       <div className="container mx-auto flex justify-between items-center">
@@ -22,7 +25,15 @@ const Header = () => {
           <Link to="/contact" className="text-white hover:text-yellow-100">
             Contact
           </Link>
-          <Link to='/login' className="text-white hover:text-yellow-100">Login</Link>
+          {Cookies.get("userToken") ? (
+            <Link to="/profile" className="text-white hover:text-yellow-100">
+              Profile
+            </Link>
+          ) : (
+            <Link to="/login" className="text-white hover:text-yellow-100">
+              Login
+            </Link>
+          )}
         </nav>
 
         {/* Mobile Menu Button (Hidden on larger screens) */}
