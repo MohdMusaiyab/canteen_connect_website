@@ -7,13 +7,16 @@ import Contact from "./pages/Contact";
 import Footer from "./components/Footer";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import PrivateRoute from "./components/PrivateRoute";
 function App() {
   return (
     <BrowserRouter>
       <Header></Header>
       <Routes>
         <Route path="/" element={<Home></Home>}></Route>
-        <Route path="/about" element={<About></About>}></Route>
+        <Route path="/about" element={<PrivateRoute></PrivateRoute>}>
+          <Route path="" element={<About></About>}></Route>
+        </Route>
         <Route path="/contact" element={<Contact></Contact>}></Route>
         <Route path="/login" element={<Login></Login>}></Route>
         <Route path="/register" element={<Register></Register>}></Route>
