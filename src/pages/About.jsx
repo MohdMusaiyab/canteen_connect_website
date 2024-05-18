@@ -1,20 +1,58 @@
-// AboutPage.js
-import React from 'react';
+import React from "react";
+import f1 from "../assets/f1.svg";
+import f2 from "../assets/f2.svg";
+import f3 from "../assets/f3.svg";
+import AboutDescription from "../components/AboutDescription";
 
-function AboutPage() {
-    return (
-        <div className="bg-white">
-            <div className="container mx-auto py-12">
-                <h1 className="text-3xl font-semibold text-yellow-400 mb-8 text-center">About Us</h1>
-                <div className="max-w-3xl mx-auto text-gray-700">
-                    <p className="mb-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis nec consequat velit. Fusce et est sed nunc tempor mollis. Suspendisse euismod felis a fermentum faucibus. Phasellus fringilla varius tortor, ut convallis sem ullamcorper non. Fusce bibendum, orci non fermentum pharetra, ex justo semper libero, et finibus enim leo a enim.</p>
-                    <p className="mb-4">In hac habitasse platea dictumst. Integer pellentesque accumsan ipsum sit amet ultrices. Phasellus varius tellus a erat consectetur, vel convallis dui venenatis. Duis tincidunt magna velit, in dapibus nisi placerat nec. Nulla facilisi. Nam sed posuere sem, ac dictum orci. Fusce lobortis, ipsum a mattis condimentum, lacus quam tristique sem, nec eleifend nisi tortor non purus.</p>
-                    <p className="mb-4">Sed auctor ultrices lorem, vitae ultrices sem sollicitudin a. Fusce lacinia lobortis felis, eu sodales mi fermentum a. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Cras et justo id dui blandit convallis ut id lacus. Fusce et erat nisi. Curabitur et lorem in elit vehicula lacinia.</p>
-                    <p>Etiam nec ultricies risus, sit amet vehicula quam. Nullam aliquam lobortis turpis sit amet consectetur. Nunc cursus fermentum nunc, a interdum purus accumsan ac. Ut venenatis euismod ex, vel laoreet ligula. Suspendisse potenti. Integer quis enim ut nisi convallis tincidunt. Suspendisse potenti.</p>
-                </div>
-            </div>
+const About = () => {
+  return (
+    <>
+    <AboutDescription />
+      <div className="max-w-screen-xl mx-auto px-4">
+        {/* First Div */}
+        <div className="flex flex-col md:flex-row items-start md:items-center mb-8">
+          {/* Left Content */}
+          <div className="md:w-1/2 md:order-1">
+            <img src={f3} alt="f3" className="w-1/4  mx-auto md:mx-0" />
+            <h1 className="text-center md:text-left text-2xl font-semibold my-4">
+              Get Ready to Satisfy your cravings in just a few taps
+            </h1>
+          </div>
+
+          {/* Empty Right Side */}
+          <div className="md:w-1/2 md:order-2"></div>
         </div>
-    );
-}
 
-export default AboutPage;
+        {/* Second Div */}
+        <div className="flex flex-col md:flex-row-reverse items-start md:items-center mb-8">
+          {/* Left Content */}
+          <div className="md:w-1/2 md:order-3">
+            <img src={f2} alt="f2" className="w-1/4 mx-auto md:mx-0" />
+            <h1 className="text-center md:text-left text-2xl font-semibold my-4">
+              Enjoy hassle-free ordering and quick pickups
+            </h1>
+          </div>
+
+          {/* Empty Right Side */}
+          <div className="md:w-1/2 md:order-4"></div>
+        </div>
+
+        {/* Third Div */}
+        <div className="flex flex-col md:flex-row items-start md:items-center">
+          {/* Left Content */}
+          <div className="md:w-1/2 md:order-5">
+            <img src={f1} alt="f1" className="w-1/4 mx-auto md:mx-0" />
+            <h1 className="text-center md:text-left text-2xl font-semibold my-4">
+              Say goodbye to long queues and waiting time
+            </h1>
+          </div>
+
+          {/* Empty Right Side */}
+          <div className="md:w-1/2 md:order-6"></div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default About;
