@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Cookies from "js-cookie";
+import { FaUser } from "react-icons/fa";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const currentUser = useSelector((state) => state.user.currentUser);
-
+  console.log(currentUser);
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
@@ -34,18 +35,18 @@ const Header = () => {
           >
             About
           </Link>
-          {/* <Link
-            to="/contact"
-            className="text-white hover:text-yellow-300 transition duration-300"
-          >
-            Contact
-          </Link> */}
           {Cookies.get("userToken") ? (
             <Link
-              to="/profile"
-              className="text-white hover:text-yellow-300 transition duration-300"
+              to={`/profile/${currentUser?._id}`}
+              className="text-white hover:text-yellow-300 transition duration-300 flex items-center"
             >
-              Profile
+              {currentUser ? (
+                <>
+                  {currentUser.name} <FaUser className="ml-2" />
+                </>
+              ) : (
+                "Profile"
+              )}
             </Link>
           ) : (
             <Link
@@ -93,18 +94,18 @@ const Header = () => {
           >
             About
           </Link>
-          {/* <Link
-            to="/contact"
-            className="block text-white hover:text-yellow-300 transition duration-300 py-2 px-4"
-          >
-            Contact
-          </Link> */}
           {Cookies.get("userToken") ? (
             <Link
-              to="/profile"
+              to={`/profile/${currentUser?._id}`}
               className="block text-white hover:text-yellow-300 transition duration-300 py-2 px-4"
             >
-              Profile
+              {currentUser ? (
+                <div className="flex items-center">
+                  {currentUser.name} <FaUser className="ml-2" />
+                </div>
+              ) : (
+                "Profile"
+              )}
             </Link>
           ) : (
             <Link

@@ -8,16 +8,27 @@ import Contact from "./pages/Contact";
 import Footer from "./components/Footer";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Profile from "./pages/Profile";
 import PrivateRoute from "./components/PrivateRoute";
+import AdminProfile from "./pages/admin/AdminProfile";
+import Orders from "./pages/admin/Orders";
+import CreateProduct from "./pages/admin/CreateProduct";
+import Categories from "./pages/admin/Categories";
 function App() {
   return (
     <BrowserRouter>
       <Header></Header>
       <Routes>
         <Route path="/" element={<Home></Home>}></Route>
-        <Route path="/profile" element={<PrivateRoute></PrivateRoute>}>
-          <Route path="" element={<Profile></Profile>}></Route>
+        {/* Check the Private Routes */}
+        <Route path="/profile/:id" element={<PrivateRoute></PrivateRoute>}>
+          <Route path="" element={<AdminProfile></AdminProfile>}></Route>
+          <Route path="orders" element={<Orders></Orders>}></Route>
+          <Route path="categories" element={<Categories></Categories>}></Route>
+        
+          <Route
+            path="my-products"
+            element={<CreateProduct></CreateProduct>}
+          ></Route>
         </Route>
         <Route path="/about" element={<About></About>}></Route>
         <Route path="/contact" element={<Contact></Contact>}></Route>
