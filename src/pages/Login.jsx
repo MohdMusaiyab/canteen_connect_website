@@ -32,7 +32,7 @@ const Login = () => {
       );
       Cookies.set("userToken", res?.data?.token);
       dispatch(signInSuccess(res.data?.user?._doc));
-      navigate("/");
+      navigate(`/profile/${res.data?.user?._doc._id}`);
     } catch (error) {
       console.error(error);
       dispatch(signInFailure(error.message));
