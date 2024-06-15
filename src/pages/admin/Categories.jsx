@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import AdminPanel from "../../components/AdminPannel";
+import AdminPanel from "../../components/AdminPannel"; 
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
@@ -11,9 +11,12 @@ const Categories = () => {
   const currentUser = useSelector((state) => state.user.currentUser);
   const [categories, setCategories] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isCreateModalVisible, setIsCreateModalVisible] = useState(false); // State for create modal
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [form] = Form.useForm();
   const token = Cookies.get("userToken");
+
+  // Fetch categories for the vendor
   const getVendorCategories = async () => {
     try {
       const response = await axios.get(
@@ -26,11 +29,13 @@ const Categories = () => {
     }
   };
 
+  // Effect to fetch categories on component mount or when id or currentUser._id changes
   useEffect(() => {
     setCategories([]); // Clear the categories before fetching new data
     getVendorCategories();
   }, [id, currentUser._id]); // Re-fetch data when id or currentUser._id changes
 
+  // Show modal to edit an existing category
   const showModal = (category) => {
     setSelectedCategory(category);
     form.setFieldsValue({
@@ -40,6 +45,7 @@ const Categories = () => {
     setIsModalVisible(true);
   };
 
+  // Handle update of an existing category
   const handleOk = async () => {
     try {
       const values = await form.validateFields();
@@ -48,7 +54,6 @@ const Categories = () => {
         values,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      //Need to check here
       setCategories(response?.data?.data);
       getVendorCategories();
       setIsModalVisible(false);
@@ -58,6 +63,7 @@ const Categories = () => {
     }
   };
 
+  // Handle deletion of an existing category
   const handleDelete = async () => {
     try {
       await axios.delete(
@@ -65,7 +71,6 @@ const Categories = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      // Assuming your categories state is named 'categories' and the setter is 'setCategories'
       setCategories(
         categories.filter((category) => category._id !== selectedCategory._id)
       );
@@ -77,9 +82,26 @@ const Categories = () => {
     }
   };
 
+  // Handle cancellation of modal
   const handleCancel = () => {
     setIsModalVisible(false);
     setSelectedCategory(null);
+  };
+
+  // Handle creation of a new category
+  const handleCreate = async (values) => {
+    try {
+      const response = await axios.post(
+        `http://localhost:3000/api/v1/category/create-category/${id}`,
+        values,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setCategories([...categories, response?.data?.data]); // Add new category to state
+      setIsCreateModalVisible(false);
+      form.resetFields(); // Reset form fields after successful creation
+    } catch (error) {
+      console.log("Create failed:", error);
+    }
   };
 
   return (
@@ -105,6 +127,13 @@ const Categories = () => {
             <p className="text-gray-600">No categories available.</p>
           )}
         </div>
+        <Button
+          type="primary"
+          className="mt-4 bg-black"
+          onClick={() => setIsCreateModalVisible(true)}
+        >
+          Create Category
+        </Button>
       </div>
       <Modal
         title="Edit Category"
@@ -128,6 +157,48 @@ const Categories = () => {
         ]}
       >
         <Form form={form} layout="vertical" name="form_in_modal">
+          <Form.Item
+            name="name"
+            label="Name"
+            rules={[
+              { required: true, message: "Please input the category name!" },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="description"
+            label="Description"
+            rules={[
+              {
+                required: true,
+                message: "Please input the category description!",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+        </Form>
+      </Modal>
+      <Modal
+        title="Create Category"
+        open={isCreateModalVisible}
+        onCancel={() => setIsCreateModalVisible(false)}
+        footer={[
+          <Button key="cancel" onClick={() => setIsCreateModalVisible(false)}>
+            Cancel
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            style={{ backgroundColor: "green", borderColor: "green" }}
+            onClick={() => form.submit()}
+          >
+            Create
+          </Button>,
+        ]}
+      >
+        <Form form={form} layout="vertical" onFinish={handleCreate}>
           <Form.Item
             name="name"
             label="Name"
