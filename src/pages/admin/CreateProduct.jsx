@@ -4,6 +4,13 @@ import AdminPanel from "../../components/AdminPannel";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useSelector } from "react-redux";
+import {
+  getDownloadURL,
+  getStorage,
+  ref,
+  uploadBytesResumable,
+} from "firebase/storage";
+import  app from "../../firebase"; // Assuming you export app from your firebase setup
 
 const CreateProduct = () => {
   const { id } = useParams();
@@ -15,6 +22,11 @@ const CreateProduct = () => {
   const currentUser = useSelector((state) => state.user.currentUser);
 
   const [vendorCategories, setVendorCategories] = useState([]);
+  // For Firebase Storage the state for handling the Image
+  const [file, setFile] = useState(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
+  const [loadingMessage, setLoadingMessage] = useState("");
 
   const getVendorProducts = async () => {
     try {
@@ -29,6 +41,7 @@ const CreateProduct = () => {
   };
 
   const handleAddProduct = async (product) => {
+    setLoadingMessage("Creating Product...");
     try {
       const res = await axios.post(
         "http://localhost:3000/api/v1/product/create-product",
@@ -36,13 +49,16 @@ const CreateProduct = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       getVendorProducts();
+      setLoadingMessage("");
       closeModal();
     } catch (error) {
       console.log(error);
+      setLoadingMessage("");
     }
   };
 
   const handleEditProduct = async (product) => {
+    setLoadingMessage("Updating Product...");
     try {
       const res = await axios.put(
         `http://localhost:3000/api/v1/product/update-product/${product._id}`,
@@ -50,9 +66,11 @@ const CreateProduct = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       getVendorProducts();
+      setLoadingMessage("");
       closeModal();
     } catch (error) {
       console.log(error);
+      setLoadingMessage("");
     }
   };
 
@@ -94,13 +112,47 @@ const CreateProduct = () => {
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setVendorCategories(res?.data?.data);
-        console.log(res?.data?.data);
       } catch (error) {
         console.log(error);
       }
     };
     getVendorCategories();
   }, []); // Empty dependency array ensures the effect runs only once on mount
+
+  const handleImageUpload = async (file) => {
+    setUploadingImage(true);
+    setUploadError(null);
+
+    return new Promise((resolve, reject) => {
+      const storage = getStorage(app);
+      const fileName = `${new Date().getTime()}_${file.name}`;
+      const storageRef = ref(storage, fileName);
+      const uploadTask = uploadBytesResumable(storageRef, file);
+
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {},
+        (error) => {
+          setUploadingImage(false);
+          setUploadError("Maximum Image Size is 2MB");
+          reject(error);
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            setUploadingImage(false);
+            resolve(downloadURL);
+          });
+        }
+      );
+    });
+  };
+
+  // Function to close modal on outside click
+  const handleModalOutsideClick = (e) => {
+    if (e.target.classList.contains("modal-overlay")) {
+      closeModal();
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 flex">
@@ -148,15 +200,30 @@ const CreateProduct = () => {
         </button>
 
         {isModalOpen && (
-          <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center">
+          <div
+            className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center modal-overlay"
+            onClick={handleModalOutsideClick} // Close modal on outside click
+          >
             <div className="bg-white p-6 rounded-lg shadow-md w-1/3">
               {modalType === "edit" && selectedProduct && (
                 <>
                   <h2 className="text-2xl font-semibold mb-4">Edit Product</h2>
                   <form
-                    onSubmit={(e) => {
+                    onSubmit={async (e) => {
                       e.preventDefault();
-                      handleEditProduct(selectedProduct);
+                      if (file) {
+                        try {
+                          const photoURL = await handleImageUpload(file);
+                          handleEditProduct({
+                            ...selectedProduct,
+                            photo: photoURL,
+                          });
+                        } catch (error) {
+                          console.log(error);
+                        }
+                      } else {
+                        handleEditProduct(selectedProduct);
+                      }
                     }}
                   >
                     <div className="mb-4">
@@ -190,6 +257,19 @@ const CreateProduct = () => {
                         className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
                       />
                     </div>
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700">
+                        Photo
+                      </label>
+                      <input
+                        type="file"
+                        onChange={(e) => setFile(e.target.files[0])}
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                      />
+                      {uploadError && (
+                        <p className="text-red-500 text-sm">{uploadError}</p>
+                      )}
+                    </div>
                     <div className="flex justify-end space-x-2">
                       <button
                         type="button"
@@ -202,7 +282,7 @@ const CreateProduct = () => {
                         type="submit"
                         className="px-4 py-2 bg-blue-500 text-white rounded"
                       >
-                        Update
+                        {loadingMessage || "Update"}
                       </button>
                     </div>
                   </form>
@@ -242,18 +322,30 @@ const CreateProduct = () => {
                 <>
                   <h2 className="text-2xl font-semibold mb-4">Add Product</h2>
                   <form
-                    onSubmit={(e) => {
+                    onSubmit={async (e) => {
                       e.preventDefault();
-                      const newProduct = {
-                        name: e.target.name.value,
-                        description: e.target.description.value,
-                        price: parseInt(e.target.price.value),
-                        category: e.target.category.value,
-                        cookingTime: parseInt(e.target.cookingTime.value),
-                        photo: e.target.photo.value,
-                        quantity: parseInt(e.target.quantity.value),
-                      };
-                      handleAddProduct(newProduct);
+                      if (file) {
+                        try {
+                          setLoadingMessage("Creating Product...");
+                          const photoURL = await handleImageUpload(file);
+                          setLoadingMessage("");
+                          const newProduct = {
+                            name: e.target.name.value,
+                            description: e.target.description.value,
+                            price: parseInt(e.target.price.value),
+                            category: e.target.category.value,
+                            cookingTime: parseInt(e.target.cookingTime.value),
+                            photo: photoURL,
+                            quantity: parseInt(e.target.quantity.value),
+                          };
+                          handleAddProduct(newProduct);
+                        } catch (error) {
+                          console.log(error);
+                          setLoadingMessage("");
+                        }
+                      } else {
+                        setUploadError("Please select an image.");
+                      }
                     }}
                   >
                     <div className="mb-4">
@@ -317,14 +409,17 @@ const CreateProduct = () => {
                     </div>
                     <div className="mb-4">
                       <label className="block text-sm font-medium text-gray-700">
-                        Photo URL
+                        Photo
                       </label>
                       <input
-                        type="text"
-                        name="photo"
+                        type="file"
+                        onChange={(e) => setFile(e.target.files[0])}
                         className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
                         required
                       />
+                      {uploadError && (
+                        <p className="text-red-500 text-sm">{uploadError}</p>
+                      )}
                     </div>
                     <div className="mb-4">
                       <label className="block text-sm font-medium text-gray-700">
@@ -349,7 +444,7 @@ const CreateProduct = () => {
                         type="submit"
                         className="px-4 py-2 bg-green-500 text-white rounded"
                       >
-                        Add Product
+                        {loadingMessage || "Add Product"}
                       </button>
                     </div>
                   </form>
