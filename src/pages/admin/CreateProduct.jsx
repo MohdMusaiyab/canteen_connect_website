@@ -31,7 +31,7 @@ const CreateProduct = () => {
   const getVendorProducts = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:3000/api/v1/product/get-products/${id}`,
+        `${import.meta.env.VITE_API_BASE_URL}/product/get-products/${id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setMyProducts(res?.data?.products);
@@ -44,7 +44,7 @@ const CreateProduct = () => {
     setLoadingMessage("Creating Product...");
     try {
       const res = await axios.post(
-        "http://localhost:3000/api/v1/product/create-product",
+        `${import.meta.env.VITE_API_BASE_URL}/product/create-product`,
         product,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -61,7 +61,7 @@ const CreateProduct = () => {
     setLoadingMessage("Updating Product...");
     try {
       const res = await axios.put(
-        `http://localhost:3000/api/v1/product/update-product/${product._id}`,
+        `${import.meta.env.VITE_API_BASE_URL}/product/update-product/${product._id}`,
         product,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -77,7 +77,7 @@ const CreateProduct = () => {
   const handleDeleteProduct = async (productId) => {
     try {
       await axios.delete(
-        `http://localhost:3000/api/v1/product/delete-product/${productId}`,
+        `${import.meta.env.VITE_API_BASE_URL}/product/delete-product/${productId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       getVendorProducts();
@@ -108,7 +108,7 @@ const CreateProduct = () => {
     const getVendorCategories = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:3000/api/v1/category/get-vendor-categories/${currentUser._id}`,
+          `${import.meta.env.VITE_API_BASE_URL}/category/get-vendor-categories/${currentUser._id}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setVendorCategories(res?.data?.data);

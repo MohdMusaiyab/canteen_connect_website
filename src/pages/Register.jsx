@@ -24,7 +24,7 @@ const Register = () => {
     e.preventDefault();
     try {
       const res = await axios.post(
-        "http://localhost:3000/api/v1/users/register-user",
+        `${import.meta.env.VITE_API_BASE_URL}/users/register-user`,
         formData
       );
       console.log("Form Submitted:", res);

@@ -27,7 +27,7 @@ const Login = () => {
     try {
       dispatch(signInStart());
       const res = await axios.post(
-        "http://localhost:3000/api/v1/users/login",
+        `${import.meta.env.VITE_API_BASE_URL}/users/login`,
         formData
       );
       Cookies.set("userToken", res?.data?.token);
