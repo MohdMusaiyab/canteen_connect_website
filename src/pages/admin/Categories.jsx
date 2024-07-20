@@ -20,7 +20,7 @@ const Categories = () => {
   const getVendorCategories = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:3000/api/v1/category/get-vendor-categories/${id}`,
+        `${import.meta.env.VITE_API_BASE_URL}/category/get-vendor-categories/${id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setCategories(response?.data?.data);
@@ -50,7 +50,7 @@ const Categories = () => {
     try {
       const values = await form.validateFields();
       const response = await axios.put(
-        `http://localhost:3000/api/v1/category/update-category/${selectedCategory._id}`,
+        `${import.meta.env.VITE_API_BASE_URL}/category/update-category/${selectedCategory._id}`,
         values,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -67,7 +67,7 @@ const Categories = () => {
   const handleDelete = async () => {
     try {
       await axios.delete(
-        `http://localhost:3000/api/v1/category/delete-category/${selectedCategory._id}`,
+        `${import.meta.env.VITE_API_BASE_URL}/category/delete-category/${selectedCategory._id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -92,7 +92,7 @@ const Categories = () => {
   const handleCreate = async (values) => {
     try {
       const response = await axios.post(
-        `http://localhost:3000/api/v1/category/create-category/${id}`,
+        `${import.meta.env.VITE_API_BASE_URL}/category/create-category/${id}`,
         values,
         { headers: { Authorization: `Bearer ${token}` } }
       );
