@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import socket from "../../../socket"; // Import the socket instance
 import { useDispatch, useSelector } from "react-redux";
-import { addNewOrder, moveToPaymentOrders, updateOrderStatus } from "../../redux/orders/orderSlice";
+import { addNewOrder, moveToPaymentOrders, updateOrderStatus ,removeOrder} from "../../redux/orders/orderSlice";
 import AdminPanel from "../../components/AdminPannel";
 
 const Orders = () => {
@@ -22,11 +22,18 @@ const Orders = () => {
       console.log("Order updated:", order); // Log the updated order for debugging
       dispatch(updateOrderStatus(order)); // Dispatch action to update order status
     });
+    
+    socket.on("order_cancelled",(order)=>{
+      console.log("Order Cancelled:",order);
+      dispatch(updateOrderStatus(order));
+    })
+    
 
     // Clean up the event listeners when the component is unmounted
     return () => {
       socket.off("new_order");
       socket.off("order_updated");
+      socket.off("order_cancelled")
     };
   }, [dispatch]);
 
@@ -34,6 +41,11 @@ const Orders = () => {
     socket.emit("accept_order", orderId);
     console.log("Order accepted:", orderId); // Log the accepted order for debugging
   };
+  //For now only Delete the Product from the 
+  const handelDeclineOrder=(orderId)=>{
+    socket.emit("decline_order",orderId);
+    console.log("Order Declined:",orderId);
+  }
 
   return (
     <div className="flex min-h-screen p-6 bg-gray-100">
@@ -61,7 +73,7 @@ const Orders = () => {
                   >
                     Accept Order
                   </button>
-                  <button className="bg-red-400 hover:bg-red-500 text-white px-4 py-2 rounded ml-2">
+                  <button className="bg-red-400 hover:bg-red-500 text-white px-4 py-2 rounded ml-2" onClick={()=>handelDeclineOrder(order._id)}>
                     Decline Order
                   </button>
                 </li>
@@ -79,9 +91,9 @@ const Orders = () => {
             <ul className="space-y-4">
               {paymentOrders.map((order, index) => (
                 <li key={index} className="bg-gray-50 p-4 rounded-lg shadow">
-                  <p className="text-lg font-semibold text-gray-700">Order ID: {order.orderId}</p>
-                  <p className="text-sm text-gray-500">Customer: {order.customer}</p>
-                  <p className="text-green-600 font-bold">Amount: Rs {order.amount}</p>
+                  <p className="text-lg font-semibold text-gray-700">Order ID: {order._id}</p>
+                  <p className="text-sm text-gray-500">Customer: {order.user}</p>
+                  <p className="text-green-600 font-bold">Amount: Rs {order.total}</p>
                 </li>
               ))}
             </ul>

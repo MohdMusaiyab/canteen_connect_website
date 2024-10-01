@@ -72,6 +72,10 @@ const orderSlice = createSlice({
       state.paymentOrders = state.paymentOrders.filter(order => order._id !== _id);
       state.confirmedOrders.push(action.payload);
     }
+    else if(status==='cancelled')
+    {
+      state.newOrders=state.newOrders.filter(order=>order._id!==_id);
+    }
   }
 },
 });
