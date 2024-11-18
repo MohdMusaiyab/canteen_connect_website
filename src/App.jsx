@@ -13,8 +13,10 @@ import AdminProfile from "./pages/admin/AdminProfile";
 import Orders from "./pages/admin/Orders";
 import CreateProduct from "./pages/admin/CreateProduct";
 import Categories from "./pages/admin/Categories";
+import SocketProvider from "../socketProvider";
 function App() {
   return (
+    <SocketProvider>
     <BrowserRouter>
       <Header></Header>
       <Routes>
@@ -38,6 +40,7 @@ function App() {
       </Routes>
       <Footer></Footer>
     </BrowserRouter>
+    </SocketProvider> 
   );
 }
 

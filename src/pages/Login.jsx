@@ -9,7 +9,7 @@ import {
 import axios from "axios";
 import Cookies from "js-cookie";
 import { Link, useNavigate } from "react-router-dom";
-
+import socket from "../../socket";
 const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -32,6 +32,9 @@ const Login = () => {
       );
       Cookies.set("userToken", res?.data?.token);
       dispatch(signInSuccess(res.data?.user?._doc));
+      socket.emit("login", res.data?.user?._doc._id);
+      //If isAdmin is true then emit registerVendor
+
       navigate(`/profile/${res.data?.user?._doc._id}`);
     } catch (error) {
       console.error(error);

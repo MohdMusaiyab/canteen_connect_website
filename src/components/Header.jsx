@@ -1,123 +1,106 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Cookies from "js-cookie";
-import { FaUser } from "react-icons/fa";
+import { FaUser, FaBars, FaTimes } from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion";
+
+const NavLink = ({ to, children }) => (
+  <Link
+    to={to}
+    className=" hover:text-blue-500 transition duration-300 py-2 px-3 rounded-md hover:bg-blue-200"
+  >
+    {children}
+  </Link>
+);
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const currentUser = useSelector((state) => state.user.currentUser);
-  console.log(currentUser);
-  const toggleMenu = () => {
-    setIsOpen(!isOpen);
-  };
+
+  const toggleMenu = () => setIsOpen(!isOpen);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const isScrolled = window.scrollY > 10;
+      if (isScrolled !== scrolled) {
+        setScrolled(isScrolled);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [scrolled]);
 
   return (
-    <div className="bg-[#FE724C] py-4">
-      <div className="container mx-auto flex justify-between items-center">
-        {/* Logo */}
-        <div className="flex items-center">
-          <img src="logo.png" alt="Logo" className="h-10 mr-4" />
-          <h1 className="text-white font-semibold text-xl">FoodDeliveryApp</h1>
+    <header className={`fixed w-full z-10 transition-all duration-300 ${scrolled ? "bg-gradient-to-b from-[#f0ecec] to-[#8bc1ff] text-white shadow-lg" : "bg-transparent"}`}>
+      <div className="container mx-auto px-4 py-4">
+        <div className="flex justify-between items-center">
+          {/* Logo */}
+          <Link to="/" className="flex items-center space-x-2">
+            <img src="logo.png" alt="Logo" className="h-10" />
+            <h1 className="text-white font-bold text-xl">FoodDeliveryApp</h1>
+          </Link>
+
+          {/* Navigation Links for larger screens */}
+          <nav className="hidden md:flex space-x-4">
+            <NavLink to="/">Home</NavLink>
+            <NavLink to="/about">About</NavLink>
+            {Cookies.get("userToken") ? (
+              <NavLink to={`/profile/${currentUser?._id}`}>
+                <div className="flex items-center space-x-2">
+                  <span>{currentUser?.name || "Profile"}</span>
+                  <FaUser />
+                </div>
+              </NavLink>
+            ) : (
+              <NavLink to="/login">Login</NavLink>
+            )}
+          </nav>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={toggleMenu}
+            className="md:hidden text-white focus:outline-none"
+            aria-label="Toggle menu"
+          >
+            {isOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+          </button>
         </div>
 
-        {/* Navigation Links for larger screens */}
-        <nav className="hidden md:flex space-x-4">
-          <Link
-            to="/"
-            className="text-white hover:text-yellow-300 transition duration-300"
-          >
-            Home
-          </Link>
-          <Link
-            to="/about"
-            className="text-white hover:text-yellow-300 transition duration-300"
-          >
-            About
-          </Link>
-          {Cookies.get("userToken") ? (
-            <Link
-              to={`/profile/${currentUser?._id}`}
-              className="text-white hover:text-yellow-300 transition duration-300 flex items-center"
+        {/* Mobile Menu */}
+        <AnimatePresence>
+          {isOpen && (
+            <motion.nav
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="md:hidden mt-4 bg-[#FD5E34] rounded-lg shadow-lg"
             >
-              {currentUser ? (
-                <>
-                  {currentUser.name} <FaUser className="ml-2" />
-                </>
-              ) : (
-                "Profile"
-              )}
-            </Link>
-          ) : (
-            <Link
-              to="/login"
-              className="text-white hover:text-yellow-300 transition duration-300"
-            >
-              Login
-            </Link>
+              <div className="flex flex-col p-4 space-y-2">
+                <NavLink to="/">Home</NavLink>
+                <NavLink to="/about">About</NavLink>
+                {Cookies.get("userToken") ? (
+                  <NavLink to={`/profile/${currentUser?._id}`}>
+                    <div className="flex items-center space-x-2">
+                      <span>{currentUser?.name || "Profile"}</span>
+                      <FaUser />
+                    </div>
+                  </NavLink>
+                ) : (
+                  <NavLink to="/login">Login</NavLink>
+                )}
+              </div>
+            </motion.nav>
           )}
-        </nav>
-
-        {/* Mobile Menu Button (Hidden on larger screens) */}
-        <button
-          onClick={toggleMenu}
-          className="md:hidden text-white focus:outline-none"
-        >
-          <svg
-            className="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d={isOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16m-7 6h7"}
-            />
-          </svg>
-        </button>
+        </AnimatePresence>
       </div>
-
-      {/* Mobile Menu (visible only on small screens) */}
-      {isOpen && (
-        <nav className="md:hidden bg-[#FE724C]">
-          <Link
-            to="/"
-            className="block text-white hover:text-yellow-300 transition duration-300 py-2 px-4"
-          >
-            Home
-          </Link>
-          <Link
-            to="/about"
-            className="block text-white hover:text-yellow-300 transition duration-300 py-2 px-4"
-          >
-            About
-          </Link>
-          {Cookies.get("userToken") ? (
-            <Link
-              to={`/profile/${currentUser?._id}`}
-              className="block text-white hover:text-yellow-300 transition duration-300 py-2 px-4"
-            >
-              {currentUser ? (
-                <div className="flex items-center">
-                  {currentUser.name} <FaUser className="ml-2" />
-                </div>
-              ) : (
-                "Profile"
-              )}
-            </Link>
-          ) : (
-            <Link
-              to="/login"
-              className="block text-white hover:text-yellow-300 transition duration-300 py-2 px-4"
-            >
-              Login
-            </Link>
-          )}
-        </nav>
-      )}
-    </div>
+    </header>
   );
 };
 

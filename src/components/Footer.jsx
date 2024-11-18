@@ -7,122 +7,98 @@ import {
   FaTwitter,
   FaInstagram,
   FaQuestionCircle,
+  FaBuilding,
 } from "react-icons/fa";
-
 import Cookies from "js-cookie";
+
+const FooterSection = ({ title, icon, children }) => (
+  <div className="mb-8 md:mb-0">
+    <h5 className="uppercase mb-4 font-bold text-lg flex items-center text-gray-800">
+      {icon}
+      <span className="ml-2">{title}</span>
+    </h5>
+    <ul className="space-y-2">
+      {children}
+    </ul>
+  </div>
+);
+
+const FooterLink = ({ to, children, external = false }) => {
+  const baseClasses = "text-gray-800 hover:text-blue-500  transition duration-300 flex items-center";
+  
+  if (external) {
+    return (
+      <a href={to} target="_blank" rel="noopener noreferrer" className={baseClasses}>
+        {children}
+      </a>
+    );
+  }
+  
+  return (
+    <Link to={to} className={baseClasses}>
+      {children}
+    </Link>
+  );
+};
+
+const SocialIcon = ({ href, icon: Icon }) => (
+  <a
+    href={href}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="text-gray-800 hover:text-yellow-500 transition duration-300 text-2xl mr-4"
+  >
+    <Icon />
+  </a>
+);
 
 const Footer = () => {
   return (
-    <footer className="bg-[#FE724C] text-white py-10 px-6">
-      <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 items-start">
-        <div>
-          <h5 className="uppercase mb-6 font-bold text-base flex items-center">
-            <FaUser className="mr-2" /> Company
-          </h5>
-          <ul className="mb-4">
-            <li>
-              <Link to="/about" className="hover:text-gray-300">
-                About us
-              </Link>
-            </li>
-            <li>
-              <Link to="/careers" className="hover:text-gray-300">
-                Careers
-              </Link>
-            </li>
-            <li>
-              <Link to="/contact" className="hover:text-gray-300">
-                Contact
-              </Link>
-            </li>
-          </ul>
-        </div>
-        <div>
-          <h5 className="uppercase mb-6 font-bold text-base flex items-center">
-            <FaQuestionCircle className="mr-2" /> Support
-          </h5>
-          <ul className="mb-4">
-            <li>
-              <Link to="/faq" className="hover:text-gray-300">
-                FAQs
-              </Link>
-            </li>
-            <li>
-              <Link to="/help" className="hover:text-gray-300">
-                Help center
-              </Link>
-            </li>
-            <li>
-              <Link to="/terms" className="hover:text-gray-300">
-                Terms of service
-              </Link>
-            </li>
-          </ul>
-        </div>
-        <div>
-          <h5 className="uppercase mb-6 font-bold text-base flex items-center">
-            <FaUser className="mr-2" /> Account
-          </h5>
-          <ul className="mb-4">
+    <footer className="bg-gradient-to-b from-[#f0ecec] to-[#8bc1ff] text-white py-16 px-6">
+      <div className="container mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <FooterSection title="Company" icon={<FaBuilding className="text-xl" />}>
+            <li><FooterLink to="/about">About us</FooterLink></li>
+            <li><FooterLink to="/careers">Careers</FooterLink></li>
+            <li><FooterLink to="/contact">Contact</FooterLink></li>
+          </FooterSection>
+
+          <FooterSection title="Support" icon={<FaQuestionCircle className="text-xl" />}>
+            <li><FooterLink to="/faq">FAQs</FooterLink></li>
+            <li><FooterLink to="/help">Help center</FooterLink></li>
+            <li><FooterLink to="/terms">Terms of service</FooterLink></li>
+          </FooterSection>
+
+          <FooterSection title="Account" icon={<FaUser className="text-xl" />}>
             {Cookies.get("token") ? (
-              <li>
-                <Link to="/profile" className="hover:text-gray-300">
-                  Profile
-                </Link>
-              </li>
+              <li><FooterLink to="/profile">Profile</FooterLink></li>
             ) : (
-              <li>
-                <Link to="/login" className="hover:text-gray-300">
-                  Login
-                </Link>
-              </li>
+              <li><FooterLink to="/login">Login</FooterLink></li>
             )}
             <li>
-              <Link
-                to="/cart"
-                className="flex items-center hover:text-gray-300"
-              >
+              <FooterLink to="/cart">
                 Cart <FaShoppingCart className="ml-1" />
-              </Link>
+              </FooterLink>
             </li>
-          </ul>
-        </div>
-        <div>
-          <h5 className="uppercase mb-6 font-bold text-base flex items-center">
-            Follow us
-          </h5>
-          <div className="flex">
-            <a
-              href="https://facebook.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-white hover:text-gray-300 mr-4"
-            >
-              <FaFacebook />
-            </a>
-            <a
-              href="https://twitter.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-white hover:text-gray-300 mr-4"
-            >
-              <FaTwitter />
-            </a>
-            <a
-              href="https://instagram.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-white hover:text-gray-300"
-            >
-              <FaInstagram />
-            </a>
+          </FooterSection>
+
+          <div>
+            <h5 className="uppercase mb-4 font-bold text-lg flex items-center text-gray-800">
+              Follow us
+            </h5>
+            <div className="flex">
+              <SocialIcon href="https://facebook.com" icon={FaFacebook} />
+              <SocialIcon href="https://twitter.com" icon={FaTwitter} />
+              <SocialIcon href="https://instagram.com" icon={FaInstagram} />
+            </div>
           </div>
         </div>
-      </div>
-      <div className="mt-10 border-t border-white-700 pt-10 text-center">
-        <p className="text-sm white">
-          © 2024 Canteen Connect. All rights reserved.
-        </p>
+
+        <div className="mt-12 pt-8 border-t border-gray-400 border-opacity-20 text-center">
+          <p className="text-sm text-gray-800">
+            © {new Date().getFullYear()} Canteen Connect. All rights reserved.
+          </p>
+        </div>
       </div>
     </footer>
   );
