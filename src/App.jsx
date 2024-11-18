@@ -14,6 +14,7 @@ import Orders from "./pages/admin/Orders";
 import CreateProduct from "./pages/admin/CreateProduct";
 import Categories from "./pages/admin/Categories";
 import SocketProvider from "../socketProvider";
+
 function App() {
   return (
     <SocketProvider>
@@ -37,6 +38,7 @@ function App() {
         <Route path="/login" element={<Login></Login>}></Route>
         <Route path="/register" element={<Register></Register>}></Route>
         <Route path="*" element={<Error></Error>}></Route>
+        
       </Routes>
       <Footer></Footer>
     </BrowserRouter>

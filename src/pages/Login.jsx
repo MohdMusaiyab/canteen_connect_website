@@ -10,6 +10,9 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { Link, useNavigate } from "react-router-dom";
 import socket from "../../socket";
+import { motion } from "framer-motion";
+import { FaEnvelope, FaLock } from "react-icons/fa";
+
 const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -33,8 +36,6 @@ const Login = () => {
       Cookies.set("userToken", res?.data?.token);
       dispatch(signInSuccess(res.data?.user?._doc));
       socket.emit("login", res.data?.user?._doc._id);
-      //If isAdmin is true then emit registerVendor
-
       navigate(`/profile/${res.data?.user?._doc._id}`);
     } catch (error) {
       console.error(error);
@@ -45,54 +46,111 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center ">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-lg max-w-md w-full space-y-6"
-        style={{ boxShadow: "0 4px 10px rgba(254, 114, 76, 0.5)" }}
+    <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-md"
       >
-        <h2 className="text-2xl font-semibold text-center text-[#FE724C]">
-          Login
-        </h2>
-        <div>
-          <label htmlFor="email" className="block text-gray-700">
-            Email:
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            onChange={handleInputChange}
-            required
-            className="w-full p-2 border border-gray-300 rounded mt-1 focus:outline-none focus:ring-2 focus:ring-[#FE724C]"
-          />
-        </div>
-        <div>
-          <label htmlFor="password" className="block text-gray-700">
-            Password:
-          </label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            onChange={handleInputChange}
-            required
-            className="w-full p-2 border border-gray-300 rounded mt-1 focus:outline-none focus:ring-2 focus:ring-[#FE724C]"
-          />
-        </div>
-        <button
-          type="submit"
-          className="w-full bg-[#FE724C] text-white py-2 rounded-lg hover:bg-[#FE5730] transition duration-300"
+        <form
+          onSubmit={handleSubmit}
+          className="
+            bg-gray-900 
+            p-8 
+            rounded-2xl 
+            shadow-2xl 
+            border 
+            border-cyan-400 
+            space-y-6
+          "
         >
-          Login
-        </button>
-        <Link
-          to="/register"
-          className="text-[#FE724C] text-center block transform hover:scale-110 transition-transform duration-300 ease-out"
-        >
-          Dont Have an Account? Register Here
-        </Link>
-      </form>
+          <h2 className="text-3xl font-bold text-center text-cyan-300 mb-6">
+            Canteen Connect
+          </h2>
+          
+          <div className="space-y-4">
+            <div className="relative">
+              <FaEnvelope className="absolute left-3 top-1/2 -translate-y-1/2 text-cyan-400" />
+              <input
+                type="email"
+                id="email"
+                name="email"
+                onChange={handleInputChange}
+                required
+                placeholder="Email Address"
+                className="
+                  w-full 
+                  p-3 
+                  pl-10 
+                  bg-gray-800 
+                  text-gray-100 
+                  rounded-lg 
+                  focus:outline-none 
+                  focus:ring-2 
+                  focus:ring-cyan-400
+                "
+              />
+            </div>
+            
+            <div className="relative">
+              <FaLock className="absolute left-3 top-1/2 -translate-y-1/2 text-cyan-400" />
+              <input
+                type="password"
+                id="password"
+                name="password"
+                onChange={handleInputChange}
+                required
+                placeholder="Password"
+                className="
+                  w-full 
+                  p-3 
+                  pl-10 
+                  bg-gray-800 
+                  text-gray-100 
+                  rounded-lg 
+                  focus:outline-none 
+                  focus:ring-2 
+                  focus:ring-cyan-400
+                "
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            className="
+              w-full 
+              bg-cyan-600 
+              text-white 
+              py-3 
+              rounded-lg 
+              hover:bg-cyan-500 
+              transition 
+              duration-300 
+              transform 
+              hover:scale-105
+            "
+          >
+            Login
+          </button>
+
+          <div className="text-center">
+            <Link
+              to="/register"
+              className="
+                text-cyan-400 
+                hover:text-cyan-300 
+                transition 
+                duration-300 
+                inline-block
+              "
+            >
+              Don't Have an Account? Register Here
+            </Link>
+          </div>
+        </form>
+      </motion.div>
     </div>
   );
 };

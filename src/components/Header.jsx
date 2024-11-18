@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 const NavLink = ({ to, children }) => (
   <Link
     to={to}
-    className=" hover:text-blue-500 transition duration-300 py-2 px-3 rounded-md hover:bg-blue-200"
+    className="text-gray-300 hover:text-cyan-400 transition duration-300 py-2 px-3 rounded-md hover:bg-gray-800"
   >
     {children}
   </Link>
@@ -37,13 +37,24 @@ const Header = () => {
   }, [scrolled]);
 
   return (
-    <header className={`fixed w-full z-10 transition-all duration-300 ${scrolled ? "bg-gradient-to-b from-[#f0ecec] to-[#8bc1ff] text-white shadow-lg" : "bg-transparent"}`}>
-      <div className="container mx-auto px-4 py-4">
+    <header 
+      className={`
+        fixed w-full z-50 transition-all duration-300 
+        ${scrolled 
+          ? "bg-gradient-to-b from-gray-900 to-gray-950 shadow-2xl" 
+          : "bg-gradient-to-b from-gray-900 to-gray-950 shadow-2xl"}
+      `}
+    >
+      <div className="container mx-auto px-4 py-4 ">
         <div className="flex justify-between items-center">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <img src="logo.png" alt="Logo" className="h-10" />
-            <h1 className="text-white font-bold text-xl">FoodDeliveryApp</h1>
+            <img 
+              src="logo.png" 
+              alt="Logo" 
+              className="h-10 rounded-full ring-2 ring-cyan-400" 
+            />
+            <h1 className="text-cyan-300 font-bold text-xl">FoodDeliveryApp</h1>
           </Link>
 
           {/* Navigation Links for larger screens */}
@@ -54,7 +65,7 @@ const Header = () => {
               <NavLink to={`/profile/${currentUser?._id}`}>
                 <div className="flex items-center space-x-2">
                   <span>{currentUser?.name || "Profile"}</span>
-                  <FaUser />
+                  <FaUser className="text-cyan-400" />
                 </div>
               </NavLink>
             ) : (
@@ -65,7 +76,7 @@ const Header = () => {
           {/* Mobile Menu Button */}
           <button
             onClick={toggleMenu}
-            className="md:hidden text-white focus:outline-none"
+            className="md:hidden text-cyan-400 focus:outline-none"
             aria-label="Toggle menu"
           >
             {isOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
@@ -80,7 +91,14 @@ const Header = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
-              className="md:hidden mt-4 bg-[#FD5E34] rounded-lg shadow-lg"
+              className="
+                md:hidden 
+                mt-4 
+                bg-gray-900 
+                rounded-lg 
+                shadow-2xl 
+                border border-gray-800
+              "
             >
               <div className="flex flex-col p-4 space-y-2">
                 <NavLink to="/">Home</NavLink>
@@ -89,7 +107,7 @@ const Header = () => {
                   <NavLink to={`/profile/${currentUser?._id}`}>
                     <div className="flex items-center space-x-2">
                       <span>{currentUser?.name || "Profile"}</span>
-                      <FaUser />
+                      <FaUser className="text-cyan-400" />
                     </div>
                   </NavLink>
                 ) : (
