@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 const AdminProfile = () => {
   const currentUser = useSelector((state) => state.user.currentUser);
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen ">
       {/* AdminPanel acting as the sidebar */}
       <AdminPannel />
 

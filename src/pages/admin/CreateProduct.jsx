@@ -10,24 +10,21 @@ import {
   ref,
   uploadBytesResumable,
 } from "firebase/storage";
-import  app from "../../firebase"; // Assuming you export app from your firebase setup
+import app from "../../firebase";
 
 const CreateProduct = () => {
   const { id } = useParams();
   const [myProducts, setMyProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [modalType, setModalType] = useState(""); // "edit", "delete" or "add"
+  const [modalType, setModalType] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const token = Cookies.get("userToken");
   const currentUser = useSelector((state) => state.user.currentUser);
-
   const [vendorCategories, setVendorCategories] = useState([]);
-  // For Firebase Storage the state for handling the Image
   const [file, setFile] = useState(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadError, setUploadError] = useState(null);
   const [loadingMessage, setLoadingMessage] = useState("");
-
   const getVendorProducts = async () => {
     try {
       const res = await axios.get(
@@ -61,7 +58,9 @@ const CreateProduct = () => {
     setLoadingMessage("Updating Product...");
     try {
       const res = await axios.put(
-        `${import.meta.env.VITE_API_BASE_URL}/product/update-product/${product._id}`,
+        `${import.meta.env.VITE_API_BASE_URL}/product/update-product/${
+          product._id
+        }`,
         product,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -77,7 +76,9 @@ const CreateProduct = () => {
   const handleDeleteProduct = async (productId) => {
     try {
       await axios.delete(
-        `${import.meta.env.VITE_API_BASE_URL}/product/delete-product/${productId}`,
+        `${
+          import.meta.env.VITE_API_BASE_URL
+        }/product/delete-product/${productId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       getVendorProducts();
@@ -108,7 +109,9 @@ const CreateProduct = () => {
     const getVendorCategories = async () => {
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}/category/get-vendor-categories/${currentUser._id}`,
+          `${
+            import.meta.env.VITE_API_BASE_URL
+          }/category/get-vendor-categories/${currentUser._id}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setVendorCategories(res?.data?.data);
@@ -155,172 +158,281 @@ const CreateProduct = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex">
+    <div className="min-h-screen bg-gray-950 flex">
       <AdminPanel />
-      <div className="p-6 w-full">
-        <h1 className="text-3xl font-bold mb-4">My Products</h1>
-        <div className="bg-white p-6 rounded-lg shadow-md">
+      <div className="flex-1 p-8 mt-20">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-5xl font-bold text-cyan-300">My Products</h1>
+            <button
+              onClick={() => openModal(null, "add")}
+              className="bg-cyan-600 hover:bg-cyan-700 text-white px-6 py-3 rounded-lg transition-colors duration-300 flex items-center gap-2"
+            >
+              <span className="text-lg">+ Add Product</span>
+            </button>
+          </div>
+
           {myProducts.length > 0 ? (
-            <ul className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {myProducts.map((product) => (
-                <li
+                <div
                   key={product._id}
-                  className="border-b pb-2 cursor-pointer flex justify-between items-center"
+                  className="bg-gray-900 rounded-lg overflow-hidden border border-gray-800 hover:border-cyan-600 transition-all duration-300 shadow-lg hover:shadow-cyan-900/20"
                 >
-                  <div>
-                    <h2 className="text-xl font-semibold">{product.name}</h2>
-                    <p className="text-gray-600">{product.description}</p>
+                  <div className="aspect-video w-full bg-gray-800">
+                    <img
+                      src={product.photo}
+                      alt={product.name}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => openModal(product, "edit")}
-                      className="text-blue-500 hover:underline"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => openModal(product, "delete")}
-                      className="text-red-500 hover:underline"
-                    >
-                      Delete
-                    </button>
+                  <div className="p-6">
+                    <h2 className="text-xl font-semibold text-cyan-400 mb-2">
+                      {product.name}
+                    </h2>
+                    <p className="text-gray-400 mb-4 line-clamp-2">
+                      {product.description}
+                    </p>
+                    <div className="flex flex-wrap gap-4 mb-4">
+                      <span className="text-gray-400">
+                        <span className="text-cyan-400">₹</span> {product.price}
+                      </span>
+                      <span className="text-gray-400">
+                        <span className="text-cyan-400">⏱</span>{" "}
+                        {product.cookingTime}min
+                      </span>
+                      <span className="text-gray-400">
+                        <span className="text-cyan-400">📦</span>{" "}
+                        {product.quantity} left
+                      </span>
+                    </div>
+                    <div className="flex justify-end space-x-3">
+                      <button
+                        onClick={() => openModal(product, "edit")}
+                        className="px-4 py-2 text-cyan-400 hover:bg-gray-800 rounded-lg transition-colors duration-300"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => openModal(product, "delete")}
+                        className="px-4 py-2 text-red-400 hover:bg-gray-800 rounded-lg transition-colors duration-300"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
-                </li>
+                </div>
               ))}
-            </ul>
+            </div>
           ) : (
-            <p className="text-gray-600">No Products available.</p>
+            <div className="text-center py-12">
+              <p className="text-gray-400 text-lg">No Products available.</p>
+            </div>
           )}
         </div>
-        <button
-          onClick={() => openModal(null, "add")}
-          className="mt-4 px-4 py-2 bg-green-500 text-white rounded"
-        >
-          Add Product
-        </button>
 
         {isModalOpen && (
           <div
-            className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center modal-overlay"
-            onClick={handleModalOutsideClick} // Close modal on outside click
+            className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 modal-overlay"
+            onClick={handleModalOutsideClick}
           >
-            <div className="bg-white p-6 rounded-lg shadow-md w-1/3">
+            <div
+              className="bg-gray-900 rounded-lg p-6 w-full max-w-2xl overflow-y-auto max-h-[90vh]"
+              onClick={(e) => e.stopPropagation()}
+            >
               {modalType === "edit" && selectedProduct && (
-                <>
-                  <h2 className="text-2xl font-semibold mb-4">Edit Product</h2>
-                  <form
-                    onSubmit={async (e) => {
-                      e.preventDefault();
-                      if (file) {
-                        try {
-                          const photoURL = await handleImageUpload(file);
-                          handleEditProduct({
-                            ...selectedProduct,
-                            photo: photoURL,
-                          });
-                        } catch (error) {
-                          console.log(error);
-                        }
-                      } else {
-                        handleEditProduct(selectedProduct);
-                      }
-                    }}
-                  >
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
-                        Name
-                      </label>
-                      <input
-                        type="text"
-                        value={selectedProduct.name}
-                        onChange={(e) =>
-                          setSelectedProduct({
-                            ...selectedProduct,
-                            name: e.target.value,
-                          })
-                        }
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                      />
-                    </div>
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
-                        Description
-                      </label>
-                      <textarea
-                        value={selectedProduct.description}
-                        onChange={(e) =>
-                          setSelectedProduct({
-                            ...selectedProduct,
-                            description: e.target.value,
-                          })
-                        }
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                      />
-                    </div>
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
-                        Photo
-                      </label>
-                      <input
-                        type="file"
-                        onChange={(e) => setFile(e.target.files[0])}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                      />
-                      {uploadError && (
-                        <p className="text-red-500 text-sm">{uploadError}</p>
-                      )}
-                    </div>
-                    <div className="flex justify-end space-x-2">
-                      <button
-                        type="button"
-                        onClick={closeModal}
-                        className="px-4 py-2 bg-gray-500 text-white rounded"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="submit"
-                        className="px-4 py-2 bg-blue-500 text-white rounded"
-                      >
-                        {loadingMessage || "Update"}
-                      </button>
-                    </div>
-                  </form>
-                </>
-              )}
+  <>
+    <h2 className="text-2xl font-semibold mb-6 text-cyan-300">
+      Edit Product
+    </h2>
+    <form
+      onSubmit={async (e) => {
+        e.preventDefault();
+        try {
+          setLoadingMessage("Updating Product...");
+          let photoURL = selectedProduct.photo;
+
+          // If a new file is selected, upload it
+          if (file) {
+            photoURL = await handleImageUpload(file);
+          }
+
+          const updatedProduct = {
+            ...selectedProduct,
+            photo: photoURL,
+          };
+
+          handleEditProduct(updatedProduct);
+        } catch (error) {
+          console.log(error);
+          setLoadingMessage("");
+        }
+      }}
+      className="space-y-4"
+    >
+      <div>
+        <label className="block text-gray-400 mb-2">Name</label>
+        <input
+          type="text"
+          value={selectedProduct.name}
+          onChange={(e) =>
+            setSelectedProduct({
+              ...selectedProduct,
+              name: e.target.value,
+            })
+          }
+          className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-gray-100 focus:border-cyan-600 focus:ring-1 focus:ring-cyan-600"
+        />
+      </div>
+      <div>
+        <label className="block text-gray-400 mb-2">Description</label>
+        <textarea
+          value={selectedProduct.description}
+          onChange={(e) =>
+            setSelectedProduct({
+              ...selectedProduct,
+              description: e.target.value,
+            })
+          }
+          rows="3"
+          className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-gray-100 focus:border-cyan-600 focus:ring-1 focus:ring-cyan-600"
+        />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-gray-400 mb-2">Price</label>
+          <input
+            type="number"
+            value={selectedProduct.price}
+            onChange={(e) =>
+              setSelectedProduct({
+                ...selectedProduct,
+                price: e.target.value,
+              })
+            }
+            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-gray-100 focus:border-cyan-600 focus:ring-1 focus:ring-cyan-600"
+          />
+        </div>
+        <div>
+          <label className="block text-gray-400 mb-2">
+            Cooking Time (minutes)
+          </label>
+          <input
+            type="number"
+            value={selectedProduct.cookingTime}
+            onChange={(e) =>
+              setSelectedProduct({
+                ...selectedProduct,
+                cookingTime: e.target.value,
+              })
+            }
+            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-gray-100 focus:border-cyan-600 focus:ring-1 focus:ring-cyan-600"
+          />
+        </div>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-gray-400 mb-2">Quantity</label>
+          <input
+            type="number"
+            value={selectedProduct.quantity}
+            onChange={(e) =>
+              setSelectedProduct({
+                ...selectedProduct,
+                quantity: e.target.value,
+              })
+            }
+            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-gray-100 focus:border-cyan-600 focus:ring-1 focus:ring-cyan-600"
+          />
+        </div>
+        <div>
+          <label className="block text-gray-400 mb-2">Category</label>
+          <select
+            value={selectedProduct.category}
+            onChange={(e) =>
+              setSelectedProduct({
+                ...selectedProduct,
+                category: e.target.value,
+              })
+            }
+            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-gray-100 focus:border-cyan-600 focus:ring-1 focus:ring-cyan-600"
+          >
+            {vendorCategories.map((category) => (
+              <option key={category._id} value={category._id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+      <div>
+        <label className="block text-gray-400 mb-2">Photo</label>
+        <input
+          type="file"
+          onChange={(e) => setFile(e.target.files[0])}
+          className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-gray-100 focus:border-cyan-600 focus:ring-1 focus:ring-cyan-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-cyan-600 file:text-white hover:file:bg-cyan-700"
+        />
+        {uploadError && (
+          <p className="text-red-400 text-sm mt-1">{uploadError}</p>
+        )}
+      </div>
+      <div className="flex justify-end space-x-3 mt-6">
+        <button
+          type="button"
+          onClick={closeModal}
+          className="px-6 py-2 border border-gray-700 text-gray-300 rounded-lg hover:bg-gray-800 transition-colors duration-300"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          className="px-6 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors duration-300"
+          disabled={uploadingImage}
+        >
+          {loadingMessage || "Update"}
+        </button>
+      </div>
+    </form>
+  </>
+)}
+
+
               {modalType === "delete" && selectedProduct && (
                 <>
-                  <h2 className="text-2xl font-semibold mb-4">
+                  <h2 className="text-2xl font-semibold mb-4 text-cyan-300">
                     Confirm Deletion
                   </h2>
-                  <p className="mb-4">
+                  <p className="mb-6 text-gray-400">
                     Are you sure you want to delete{" "}
-                    <span className="font-semibold">
+                    <span className="text-cyan-400 font-semibold">
                       {selectedProduct.name}
                     </span>
                     ?
                   </p>
-                  <div className="flex justify-end space-x-2">
+                  <div className="flex justify-end space-x-3">
                     <button
                       type="button"
                       onClick={closeModal}
-                      className="px-4 py-2 bg-gray-500 text-white rounded"
+                      className="px-4 py-2 border border-gray-700 text-gray-300 rounded-lg hover:bg-gray-800 transition-colors duration-300"
                     >
                       Cancel
                     </button>
                     <button
                       type="button"
                       onClick={() => handleDeleteProduct(selectedProduct._id)}
-                      className="px-4 py-2 bg-red-500 text-white rounded"
+                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-300"
                     >
                       Delete
                     </button>
                   </div>
                 </>
               )}
+
               {modalType === "add" && (
                 <>
-                  <h2 className="text-2xl font-semibold mb-4">Add Product</h2>
+                  <h2 className="text-2xl font-semibold mb-6 text-cyan-300">
+                    Add New Product
+                  </h2>
                   <form
                     onSubmit={async (e) => {
                       e.preventDefault();
@@ -347,102 +459,115 @@ const CreateProduct = () => {
                         setUploadError("Please select an image.");
                       }
                     }}
+                    className="space-y-4"
                   >
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
-                        Name
-                      </label>
-                      <input
-                        type="text"
-                        name="name"
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                        required
-                      />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-gray-400 mb-2">Name</label>
+                        <input
+                          type="text"
+                          name="name"
+                          required
+                          className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-gray-100 focus:border-cyan-600 focus:ring-1 focus:ring-cyan-600"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-gray-400 mb-2">
+                          Price
+                        </label>
+                        <input
+                          type="number"
+                          name="price"
+                          required
+                          className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-gray-100 focus:border-cyan-600 focus:ring-1 focus:ring-cyan-600"
+                        />
+                      </div>
                     </div>
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
+
+                    <div>
+                      <label className="block text-gray-400 mb-2">
                         Description
                       </label>
                       <textarea
                         name="description"
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
                         required
+                        rows="3"
+                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-gray-100 focus:border-cyan-600 focus:ring-1 focus:ring-cyan-600"
                       />
                     </div>
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
-                        Price
-                      </label>
-                      <input
-                        type="number"
-                        name="price"
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                        required
-                      />
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-gray-400 mb-2">
+                          Category
+                        </label>
+                        <select
+                          name="category"
+                          required
+                          className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-gray-100 focus:border-cyan-600 focus:ring-1 focus:ring-cyan-600"
+                        >
+                          {vendorCategories.map((category) => (
+                            <option key={category._id} value={category._id}>
+                              {category.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-gray-400 mb-2">
+                          Cooking Time (minutes)
+                        </label>
+                        <input
+                          type="number"
+                          name="cookingTime"
+                          required
+                          className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-gray-100 focus:border-cyan-600 focus:ring-1 focus:ring-cyan-600"
+                        />
+                      </div>
                     </div>
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
-                        Category
-                      </label>
-                      <select
-                        name="category"
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                        required
-                      >
-                        {vendorCategories.map((category) => (
-                          <option key={category._id} value={category._id}>
-                            {category.name}
-                          </option>
-                        ))}
-                      </select>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-gray-400 mb-2">
+                          Quantity
+                        </label>
+                        <input
+                          type="number"
+                          name="quantity"
+                          required
+                          className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-gray-100 focus:border-cyan-600 focus:ring-1 focus:ring-cyan-600"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-gray-400 mb-2">
+                          Photo
+                        </label>
+                        <input
+                          type="file"
+                          onChange={(e) => setFile(e.target.files[0])}
+                          required
+                          className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-gray-100 focus:border-cyan-600 focus:ring-1 focus:ring-cyan-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-cyan-600 file:text-white hover:file:bg-cyan-700"
+                        />
+                        {uploadError && (
+                          <p className="text-red-400 text-sm mt-1">
+                            {uploadError}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
-                        Cooking Time (minutes)
-                      </label>
-                      <input
-                        type="number"
-                        name="cookingTime"
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                        required
-                      />
-                    </div>
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
-                        Photo
-                      </label>
-                      <input
-                        type="file"
-                        onChange={(e) => setFile(e.target.files[0])}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                        required
-                      />
-                      {uploadError && (
-                        <p className="text-red-500 text-sm">{uploadError}</p>
-                      )}
-                    </div>
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
-                        Quantity
-                      </label>
-                      <input
-                        type="number"
-                        name="quantity"
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                        required
-                      />
-                    </div>
-                    <div className="flex justify-end space-x-2">
+
+                    <div className="flex justify-end space-x-3 mt-6">
                       <button
                         type="button"
                         onClick={closeModal}
-                        className="px-4 py-2 bg-gray-500 text-white rounded"
+                        className="px-6 py-2 border border-gray-700 text-gray-300 rounded-lg hover:bg-gray-800 transition-colors duration-300"
                       >
                         Cancel
                       </button>
                       <button
                         type="submit"
-                        className="px-4 py-2 bg-green-500 text-white rounded"
+                        className="px-6 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors duration-300"
+                        disabled={uploadingImage}
                       >
                         {loadingMessage || "Add Product"}
                       </button>

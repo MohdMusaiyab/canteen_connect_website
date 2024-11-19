@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
-import AdminPanel from "../../components/AdminPannel"; 
+import AdminPanel from "../../components/AdminPannel";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { Modal, Button, Form, Input } from "antd";
 import Cookies from "js-cookie";
 
 const Categories = () => {
@@ -11,16 +10,17 @@ const Categories = () => {
   const currentUser = useSelector((state) => state.user.currentUser);
   const [categories, setCategories] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [isCreateModalVisible, setIsCreateModalVisible] = useState(false); // State for create modal
+  const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [form] = Form.useForm();
+  const [formData, setFormData] = useState({ name: "", description: "" });
   const token = Cookies.get("userToken");
 
-  // Fetch categories for the vendor
   const getVendorCategories = async () => {
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL}/category/get-vendor-categories/${id}`,
+        `${
+          import.meta.env.VITE_API_BASE_URL
+        }/category/get-vendor-categories/${id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setCategories(response?.data?.data);
@@ -29,29 +29,25 @@ const Categories = () => {
     }
   };
 
-  // Effect to fetch categories on component mount or when id or currentUser._id changes
   useEffect(() => {
-    setCategories([]); // Clear the categories before fetching new data
+    setCategories([]);
     getVendorCategories();
-  }, [id, currentUser._id]); // Re-fetch data when id or currentUser._id changes
+  }, [id, currentUser._id]);
 
-  // Show modal to edit an existing category
   const showModal = (category) => {
     setSelectedCategory(category);
-    form.setFieldsValue({
-      name: category.name,
-      description: category.description,
-    });
+    setFormData({ name: category.name, description: category.description });
     setIsModalVisible(true);
   };
 
-  // Handle update of an existing category
-  const handleOk = async () => {
+  const handleUpdate = async (e) => {
+    e.preventDefault();
     try {
-      const values = await form.validateFields();
       const response = await axios.put(
-        `${import.meta.env.VITE_API_BASE_URL}/category/update-category/${selectedCategory._id}`,
-        values,
+        `${import.meta.env.VITE_API_BASE_URL}/category/update-category/${
+          selectedCategory._id
+        }`,
+        formData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setCategories(response?.data?.data);
@@ -63,18 +59,17 @@ const Categories = () => {
     }
   };
 
-  // Handle deletion of an existing category
   const handleDelete = async () => {
     try {
       await axios.delete(
-        `${import.meta.env.VITE_API_BASE_URL}/category/delete-category/${selectedCategory._id}`,
+        `${import.meta.env.VITE_API_BASE_URL}/category/delete-category/${
+          selectedCategory._id
+        }`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
       setCategories(
         categories.filter((category) => category._id !== selectedCategory._id)
       );
-
       setIsModalVisible(false);
       setSelectedCategory(null);
     } catch (error) {
@@ -82,146 +77,171 @@ const Categories = () => {
     }
   };
 
-  // Handle cancellation of modal
-  const handleCancel = () => {
-    setIsModalVisible(false);
-    setSelectedCategory(null);
-  };
-
-  // Handle creation of a new category
-  const handleCreate = async (values) => {
+  const handleCreate = async (e) => {
+    e.preventDefault();
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/category/create-category/${id}`,
-        values,
+        formData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setCategories([...categories, response?.data?.data]); // Add new category to state
+      setCategories([...categories, response?.data?.data]);
       setIsCreateModalVisible(false);
-      form.resetFields(); // Reset form fields after successful creation
+      setFormData({ name: "", description: "" });
     } catch (error) {
       console.log("Create failed:", error);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex">
+    <div className="flex min-h-screen bg-gray-950">
       <AdminPanel />
-      <div className="p-6">
-        <h1 className="text-3xl font-bold mb-4">Categories for the Admin</h1>
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          {categories.length > 0 ? (
-            <ul className="space-y-4">
-              {categories.map((category) => (
-                <li
-                  key={category._id}
-                  className="border-b pb-2 cursor-pointer"
-                  onClick={() => showModal(category)}
-                >
-                  <h2 className="text-xl font-semibold">{category.name}</h2>
-                  <p className="text-gray-600">{category.description}</p>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-gray-600">No categories available.</p>
-          )}
+      <div className="flex-1">
+        <div className="max-w-4xl mx-auto mt-20">
+          <h1 className="text-5xl font-bold mb-8 text-cyan-300">
+            My Categories
+          </h1>
+
+          <div className="bg-gray-900 p-6 rounded-lg shadow-lg mb-6">
+            {categories.length > 0 ? (
+              <ul className="space-y-4">
+                {categories.map((category) => (
+                  <li
+                    key={category._id}
+                    className="border border-gray-800 p-4 rounded-lg hover:border-cyan-600 transition-all duration-300 cursor-pointer bg-gray-900 hover:shadow-lg hover:shadow-cyan-900/20"
+                    onClick={() => showModal(category)}
+                  >
+                    <h2 className="text-xl font-semibold text-cyan-400 mb-2">
+                      {category.name}
+                    </h2>
+                    <p className="text-gray-400">{category.description}</p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-gray-400">No categories available.</p>
+            )}
+          </div>
+
+          <button
+            onClick={() => setIsCreateModalVisible(true)}
+            className="bg-cyan-600 text-white px-6 py-3 rounded-lg hover:bg-cyan-700 transition-colors duration-300 mb-2"
+          >
+            Create Category
+          </button>
         </div>
-        <Button
-          type="primary"
-          className="mt-4 bg-black"
-          onClick={() => setIsCreateModalVisible(true)}
-        >
-          Create Category
-        </Button>
       </div>
-      <Modal
-        title="Edit Category"
-        open={isModalVisible}
-        onCancel={handleCancel}
-        footer={[
-          <Button key="delete" type="primary" danger onClick={handleDelete}>
-            Delete
-          </Button>,
-          <Button key="cancel" onClick={handleCancel}>
-            Cancel
-          </Button>,
-          <Button
-            key="submit"
-            type="primary"
-            style={{ backgroundColor: "green", borderColor: "green" }}
-            onClick={handleOk}
-          >
-            Update
-          </Button>,
-        ]}
-      >
-        <Form form={form} layout="vertical" name="form_in_modal">
-          <Form.Item
-            name="name"
-            label="Name"
-            rules={[
-              { required: true, message: "Please input the category name!" },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            name="description"
-            label="Description"
-            rules={[
-              {
-                required: true,
-                message: "Please input the category description!",
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-        </Form>
-      </Modal>
-      <Modal
-        title="Create Category"
-        open={isCreateModalVisible}
-        onCancel={() => setIsCreateModalVisible(false)}
-        footer={[
-          <Button key="cancel" onClick={() => setIsCreateModalVisible(false)}>
-            Cancel
-          </Button>,
-          <Button
-            key="submit"
-            type="primary"
-            style={{ backgroundColor: "green", borderColor: "green" }}
-            onClick={() => form.submit()}
-          >
-            Create
-          </Button>,
-        ]}
-      >
-        <Form form={form} layout="vertical" onFinish={handleCreate}>
-          <Form.Item
-            name="name"
-            label="Name"
-            rules={[
-              { required: true, message: "Please input the category name!" },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            name="description"
-            label="Description"
-            rules={[
-              {
-                required: true,
-                message: "Please input the category description!",
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-        </Form>
-      </Modal>
+
+      {/* Edit Modal */}
+      {isModalVisible && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-gray-900 rounded-lg p-6 w-full max-w-md">
+            <h2 className="text-2xl font-bold mb-4 text-cyan-300">
+              Edit Category
+            </h2>
+            <form onSubmit={handleUpdate} className="space-y-4">
+              <div>
+                <label className="block text-gray-400 mb-2">Name</label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
+                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-gray-100 focus:border-cyan-600 focus:ring-1 focus:ring-cyan-600"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-gray-400 mb-2">Description</label>
+                <input
+                  type="text"
+                  value={formData.description}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
+                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-gray-100 focus:border-cyan-600 focus:ring-1 focus:ring-cyan-600"
+                  required
+                />
+              </div>
+              <div className="flex justify-end space-x-3 mt-6">
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors duration-300"
+                >
+                  Delete
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsModalVisible(false)}
+                  className="border border-gray-600 text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors duration-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-cyan-600 text-white px-4 py-2 rounded-lg hover:bg-cyan-700 transition-colors duration-300"
+                >
+                  Update
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Create Modal */}
+      {isCreateModalVisible && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-gray-900 rounded-lg p-6 w-full max-w-md">
+            <h2 className="text-2xl font-bold mb-4 text-cyan-300 ">
+              Create Category
+            </h2>
+            <form onSubmit={handleCreate} className="space-y-4">
+              <div>
+                <label className="block text-gray-400 mb-2">Name</label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
+                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-gray-100 focus:border-cyan-600 focus:ring-1 focus:ring-cyan-600"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-gray-400 mb-2">Description</label>
+                <input
+                  type="text"
+                  value={formData.description}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
+                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-gray-100 focus:border-cyan-600 focus:ring-1 focus:ring-cyan-600"
+                  required
+                />
+              </div>
+              <div className="flex justify-end space-x-3 mt-6">
+                <button
+                  type="button"
+                  onClick={() => setIsCreateModalVisible(false)}
+                  className="border border-gray-600 text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors duration-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-cyan-600 text-white px-4 py-2 rounded-lg hover:bg-cyan-700 transition-colors duration-300"
+                >
+                  Create
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

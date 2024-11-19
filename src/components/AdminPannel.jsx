@@ -6,13 +6,21 @@ import {
 } from "../redux/user/userSlice";
 import Cookies from "js-cookie";
 import { useDispatch, useSelector } from "react-redux";
-import { FaBars } from "react-icons/fa"; // Example icon, replace with appropriate React Icons import
+import {
+  Menu,
+  X,
+  LayoutDashboard,
+  Package,
+  ShoppingCart,
+  FolderTree,
+  LogOut,
+} from "lucide-react";
 
 const AdminPanel = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const currentUser = useSelector((state) => state.user.currentUser);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const handleSignOut = () => {
     try {
@@ -25,70 +33,97 @@ const AdminPanel = () => {
     }
   };
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
+  const toggleSidebar = () => setIsMobileOpen(!isMobileOpen);
 
-  return (
-    <div className="flex flex-col h-screen bg-gray-900 text-white md:w-64">
-      {/* Top Bar */}
-      <div className="bg-gray-800 p-4 flex justify-between items-center md:hidden">
-        <div className="text-xl font-bold text-yellow-400">Admin Panel</div>
+  const NavLink = ({ to, children, icon: Icon }) => (
+    <Link
+      to={to}
+      className="flex items-center gap-3 w-full py-3 px-4 rounded-lg text-gray-300 hover:text-white hover:bg-gray-800 transition-all duration-200"
+      onClick={() => setIsMobileOpen(false)}
+    >
+      <Icon size={20} className="text-cyan-400" />
+      <span>{children}</span>
+    </Link>
+  );
+
+  const SidebarContent = () => (
+    <div className="flex flex-col  bg-gray-950 text-gray-100">
+      {/* Mobile Header */}
+      <div className="flex items-center justify-between md:hidden p-4 border-b border-gray-800">
+        <h2 className="text-cyan-400 font-semibold text-lg">Admin Panel</h2>
         <button
-          onClick={toggleMenu}
-          className="text-white block px-3 py-2 hover:bg-gray-700 rounded-md focus:outline-none"
+          onClick={toggleSidebar}
+          className="text-gray-400 hover:text-gray-100 transition-colors"
         >
-          <FaBars />
+          <X size={24} />
         </button>
       </div>
-      {/* Sidebar */}
-      <div
-        className={`flex-grow p-4 ${isMenuOpen ? "block" : "hidden md:block"}`}
-      >
-        <ul className="space-y-2">
-          <li>
-            <Link
-              to={`/profile/${currentUser?._id}`}
-              className="block py-2 px-4 text-white hover:bg-gray-700 border rounded-md border-transparent hover:border-white"
-            >
-              Dashboard
-            </Link>
-          </li>
-          <li>
-            <Link
-              to={`/profile/${currentUser?._id}/orders`}
-              className="block py-2 px-4 text-white hover:bg-gray-700 border rounded-md border-transparent hover:border-white"
-            >
-              Orders
-            </Link>
-          </li>
-          <li>
-            <Link
-              to={`/profile/${currentUser?._id}/my-products`}
-              className="block py-2 px-4 text-white hover:bg-gray-700 border rounded-md border-transparent hover:border-white"
-            >
-              My Products
-            </Link>
-          </li>
-          <li>
-            <Link
-              to={`/profile/${currentUser?._id}/categories`}
-              className="block py-2 px-4 text-white hover:bg-gray-700 border rounded-md border-transparent hover:border-white"
-            >
-              Categories
-            </Link>
-          </li>
-          <li>
-            <button
-              onClick={handleSignOut}
-              className="block py-2 px-4 text-white hover:bg-gray-700 border rounded-md border-transparent hover:border-white"
-            >
-              Sign Out
-            </button>
-          </li>
-        </ul>
-      </div>
+
+      {/* Navigation Links */}
+      <nav className="flex-1 overflow-y-auto space-y-2 p-2 mt-20">
+        <NavLink to={`/profile/${currentUser?._id}`} icon={LayoutDashboard}>
+          Dashboard
+        </NavLink>
+        <NavLink to={`/profile/${currentUser?._id}/orders`} icon={ShoppingCart}>
+          Orders
+        </NavLink>
+        <NavLink to={`/profile/${currentUser?._id}/my-products`} icon={Package}>
+          My Products
+        </NavLink>
+        <NavLink
+          to={`/profile/${currentUser?._id}/categories`}
+          icon={FolderTree}
+        >
+          Categories
+        </NavLink>
+
+        {/* Sign Out Button */}
+        <button
+          onClick={handleSignOut}
+          className="flex items-center gap-3 w-full mt-4 py-3 px-4 rounded-lg text-gray-300 hover:text-white hover:bg-gray-800 transition-all duration-200"
+        >
+          <LogOut size={20} className="text-cyan-400" />
+          <span>Sign Out</span>
+        </button>
+      </nav>
     </div>
+  );
+
+  return (
+    <>
+      {/* Mobile Toggle Button */}
+      <button
+        onClick={toggleSidebar}
+        className="fixed bottom-6 right-6 md:hidden z-30 p-3 rounded-full bg-cyan-500 text-white shadow-lg hover:opacity-90 transition-opacity"
+      >
+        <Menu size={24} />
+      </button>
+
+      {/* Desktop Sidebar */}
+      <aside className="hidden md:block w-45 sticky  h-screen overflow-hidden bg-gray-950 border-r border-gray-800 shadow-lg ">
+        <SidebarContent />
+      </aside>
+
+      {/* Mobile Sidebar */}
+      <div
+        className={`md:hidden fixed inset-0 z-40 transition-transform duration-300 ease-in-out ${
+          isMobileOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        {/* Overlay */}
+        <div
+          className={`fixed inset-0 bg-black/50 transition-opacity duration-300 ${
+            isMobileOpen ? "opacity-100" : "opacity-0"
+          }`}
+          onClick={toggleSidebar}
+        />
+
+        {/* Mobile Sidebar Content */}
+        <aside className="absolute right-0 h-full w-80 bg-gray-950 border-l border-gray-800 shadow-lg">
+          <SidebarContent />
+        </aside>
+      </div>
+    </>
   );
 };
 
