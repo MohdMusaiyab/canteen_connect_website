@@ -1,15 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { 
-  FaUser, 
-  FaEnvelope, 
-  FaLock, 
-  FaPhone, 
-  FaMapMarkerAlt 
+import {
+  FaUser,
+  FaEnvelope,
+  FaLock,
+  FaPhone,
+  FaMapMarkerAlt,
 } from "react-icons/fa";
-
+import { useSelector } from "react-redux";
 const Register = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -19,7 +19,14 @@ const Register = () => {
     contact: "",
     address: "",
   });
-
+  //Getting the Current user from Redux Store
+  const currentUser = useSelector((state) => state.user.currentUser);
+  useEffect(() => {
+    if (currentUser) {
+      const userId = currentUser?._id;
+      navigate(`/profile/${userId}`);
+    }
+  }, [navigate]);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
@@ -66,7 +73,7 @@ const Register = () => {
           <h2 className="text-3xl font-bold text-center text-cyan-300 mb-6">
             Register
           </h2>
-          
+
           <div className="space-y-4">
             {/* Name Input */}
             <div className="relative">

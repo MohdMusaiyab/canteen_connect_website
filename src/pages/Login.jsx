@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import {
   signInSuccess,
@@ -12,11 +12,20 @@ import { Link, useNavigate } from "react-router-dom";
 import socket from "../../socket";
 import { motion } from "framer-motion";
 import { FaEnvelope, FaLock } from "react-icons/fa";
-
+import { useSelector } from "react-redux";
 const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({});
+  const currentUser = useSelector((state) => state.user.currentUser);
+  useEffect(() => {
+    const token = Cookies.get("userToken");
+    if (token) {
+      //Getting the user from Redux
+
+      navigate(`/profile/${currentUser?._id}`);
+    }
+  }, [navigate]);
 
   const handleInputChange = (event) => {
     setFormData({
@@ -68,7 +77,7 @@ const Login = () => {
           <h2 className="text-3xl font-bold text-center text-cyan-300 mb-6">
             Canteen Connect
           </h2>
-          
+
           <div className="space-y-4">
             <div className="relative">
               <FaEnvelope className="absolute left-3 top-1/2 -translate-y-1/2 text-cyan-400" />
@@ -92,7 +101,7 @@ const Login = () => {
                 "
               />
             </div>
-            
+
             <div className="relative">
               <FaLock className="absolute left-3 top-1/2 -translate-y-1/2 text-cyan-400" />
               <input
