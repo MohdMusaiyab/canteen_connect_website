@@ -18,7 +18,7 @@ const orderSlice = createSlice({
       state.loading = false;
       state.newOrders = action.payload;
       state.paymentOrders = action.payload;
-      state.confirmedOrders = action.payload    ;
+      state.confirmedOrders = action.payload;
       state.error = null;
     },
     fetchOrdersFailure: (state, action) => {
@@ -50,30 +50,36 @@ const orderSlice = createSlice({
         state.confirmedOrders.push(order);
       }
     },
+
     removeOrder: (state, action) => {
+      const orderId = action.payload;
+
+      // Remove from the respective order lists
       state.newOrders = state.newOrders.filter(
-        (order) => order.id !== action.payload
+        (order) => order._id !== orderId
       );
       state.paymentOrders = state.paymentOrders.filter(
-        (order) => order.id !== action.payload
+        (order) => order._id !== orderId
       );
       state.confirmedOrders = state.confirmedOrders.filter(
-        (order) => order.id !== action.payload
+        (order) => order._id !== orderId
       );
     },
-  updateOrderStatus: (state, action) => {
-    const { _id, status } = action.payload;
+    updateOrderStatus: (state, action) => {
+      const { _id, status } = action.payload;
 
-    // Remove from newOrders if status is not 'new'
-    if (status === 'payment-awaited') {
-      state.newOrders = state.newOrders.filter(order => order._id !== _id);
-      state.paymentOrders.push(action.payload);
-    } else if (status === 'confirmed') {
-      state.paymentOrders = state.paymentOrders.filter(order => order._id !== _id);
-      state.confirmedOrders.push(action.payload);
-    }
-  }
-},
+      // Remove from newOrders if status is not 'new'
+      if (status === "payment-awaited") {
+        state.newOrders = state.newOrders.filter((order) => order._id !== _id);
+        state.paymentOrders.push(action.payload);
+      } else if (status === "confirmed") {
+        state.paymentOrders = state.paymentOrders.filter(
+          (order) => order._id !== _id
+        );
+        state.confirmedOrders.push(action.payload);
+      }
+    },
+  },
 });
 
 // Export actions and reducer
@@ -85,6 +91,6 @@ export const {
   moveToPaymentOrders,
   moveToConfirmedOrders,
   removeOrder,
-  updateOrderStatus
+  updateOrderStatus,
 } = orderSlice.actions;
 export default orderSlice.reducer;
